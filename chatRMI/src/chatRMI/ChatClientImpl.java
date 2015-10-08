@@ -1,7 +1,5 @@
 package chatRMI;
 
-import java.awt.EventQueue;
-
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,6 +26,10 @@ import javax.swing.Action;
 
 public class ChatClientImpl implements Serializable, ChatClient{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -984108906583278753L;
 	private JFrame frame;
 	private JTextField inputTextField;
 	private JTextPane chatField;
@@ -53,7 +55,7 @@ public class ChatClientImpl implements Serializable, ChatClient{
 		}
 		
 		ChatServer server = null;
-		ChatClient client = null;
+		ChatClientImpl client = null;
 		try { 
 			server = (ChatServer) reg.lookup("chatserver");
 			client = new ChatClientImpl(JOptionPane.showInputDialog("por favor, escolha um apelido"));
@@ -63,7 +65,7 @@ public class ChatClientImpl implements Serializable, ChatClient{
 			System.exit(1);
 		}
 		
-		client.frame.setVisible(true);
+		client.show();
 	}
 
 	/**
@@ -134,19 +136,24 @@ public class ChatClientImpl implements Serializable, ChatClient{
 	}
 	
 	private class SwingAction extends AbstractAction {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 5307367378393118447L;
+
 		public SwingAction() {
 			putValue(NAME, "Enviar");
 			putValue(SHORT_DESCRIPTION, "Enviar String para servidor");
 		}
 		
 		public void actionPerformed(ActionEvent e) {
-			System.out.println("Action");
+			System.out.println("click do botão :D");
 		}
 	}
 
 	@Override
 	public String getUsername() throws RemoteException {
-		return uname;
+		return username;
 	}
 
 	@Override

@@ -37,13 +37,6 @@ public class ChatServerImpl extends UnicastRemoteObject implements ChatServer {
 			rex.printStackTrace();
 			System.exit(1);
 		}
-		
-		try {
-			ChatClientImpl window = new ChatClientImpl();
-			window.show();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 	}
 
 	@Override

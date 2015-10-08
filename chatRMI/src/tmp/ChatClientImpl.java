@@ -1,95 +1,95 @@
 package tmp;
 
-import java.io.Console;
-import java.io.Serializable;
-import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
-import java.util.Scanner;
+import java.io.console;
+import java.io.serializable;
+import java.rmi.remoteexception;
+import java.rmi.registry.locateregistry;
+import java.rmi.registry.registry;
+import java.util.scanner;
 
-public class ChatClientImpl implements Serializable, ChatClient {
+public class chatclientimpl implements serializable, chatclient {
 
-	private static final long serialVersionUID = -2997499944109900305L;
-	String username;
+	private static final long serialversionuid = -2997499944109900305l;
+	string username;
 	
-	public ChatClientImpl(String uname) {
+	public chatclientimpl(string uname) {
 		username = uname;
 	}
 	
-//	public static void main(String[] args) throws RemoteException{
-//		
-//		// Setup registry ///////////////////////////////
-//		Registry reg = null;
-//		try {
-//			reg = LocateRegistry.createRegistry(1099);
-//		} catch (RemoteException rex) {
-//			try {
-//				reg = LocateRegistry.getRegistry(1099);
-//			}catch (Exception ex) {
-//				ex.printStackTrace();
-//				System.exit(1);
-//			}
-//		}
+	public static void main(string[] args) throws remoteexception{
 		
-		// Welcome text and username reading //////////// 
-//		System.out.println("Bem vindo ao client de chat RMI");
-//		System.out.println("Aluno: Renato Caminha Juaçaba Neto");
-//		System.out.println();
-//		System.out.print("Digite um nome de usuário: ");
-//		Scanner reader = new Scanner(System.in);
-//		String uname = reader.nextLine();
-//		System.out.println();
-		
-		
-		// Setup Client and server //////////////////////
-//		ChatServer server = null;
-//		ChatClient client = null;
-//		try { 
-//			server = (ChatServer) reg.lookup("chatserver");
-//			client = new ChatClientImpl(uname);
-//			server.registerClient(client);
-//		} catch (Exception rex) {
-//			rex.printStackTrace();
-//			System.exit(1);
-//		}
-		
-		
-		// Instructions //////////////////////////////////
-//		System.out.println("As mensagens estão no formato \"(usuário) blá blá blá\" ");
-//		System.out.println("Para se comunicar basta digitar a mensagem e pressionar <enter>");
-//		System.out.println("Para finalizar o cliente basta enviar o sinal de interrupção (<ctrl> + c)");
-//		System.out.println();
-		
-		
-		// Read messages loop and closing stuff //////////
-//		try {
-//			while (true) {
-//				String message = reader.nextLine();
-//				server.sendBroadcastMessage(client, message);
-//			}
-//		} catch (Exception ex) {
-//			ex.printStackTrace();
-//		} finally {
-//			reader.close();
-//			server.unregisterClient(client);
-//		}
-//	}
-
-	@Override
-	public boolean registerBroadcastMessage(ChatClient sender, String message) {
-		String unameSender = null;
+		// setup registry ///////////////////////////////
+		registry reg = null;
 		try {
-			unameSender = sender.getUsername().trim();
-		} catch (RemoteException rex) {
-			unameSender = "Failed to retrieve username";
+			reg = locateregistry.createregistry(1099);
+		} catch (remoteexception rex) {
+			try {
+				reg = locateregistry.getregistry(1099);
+			}catch (exception ex) {
+				ex.printstacktrace();
+				system.exit(1);
+			}
+		}
+		
+		// welcome text and username reading //////////// 
+		system.out.println("bem vindo ao client de chat rmi");
+		system.out.println("aluno: renato caminha juaçaba neto");
+		system.out.println();
+		system.out.print("digite um nome de usuário: ");
+		scanner reader = new scanner(system.in);
+		string uname = reader.nextline();
+		system.out.println();
+		
+		
+		// setup client and server //////////////////////
+		chatserver server = null;
+		chatclient client = null;
+		try { 
+			server = (chatserver) reg.lookup("chatserver");
+			client = new chatclientimpl(uname);
+			server.registerclient(client);
+		} catch (exception rex) {
+			rex.printstacktrace();
+			system.exit(1);
+		}
+		
+		
+		// instructions //////////////////////////////////
+		system.out.println("as mensagens estão no formato \"(usuário) blá blá blá\" ");
+		system.out.println("para se comunicar basta digitar a mensagem e pressionar <enter>");
+		system.out.println("para finalizar o cliente basta enviar o sinal de interrupção (<ctrl> + c)");
+		system.out.println();
+		
+		
+//		 read messages loop and closing stuff //////////
+		try {
+			while (true) {
+				string message = reader.nextline();
+				server.sendbroadcastmessage(client, message);
+			}
+		} catch (exception ex) {
+			ex.printstacktrace();
+		} finally {
+			reader.close();
+			server.unregisterclient(client);
+		}
+	}
+
+	@override
+	public boolean registerbroadcastmessage(chatclient sender, string message) {
+		string unamesender = null;
+		try {
+			unamesender = sender.getusername().trim();
+		} catch (remoteexception rex) {
+			unamesender = "failed to retrieve username";
 		}
 	
-		System.console().writer().println(" ( " + unameSender + " ) " + message.trim());
+		system.console().writer().println(" ( " + unamesender + " ) " + message.trim());
 		return true;
 	}
 
-	@Override
-	public String getUsername() {
+	@override
+	public string getusername() {
 		return username;
 	}
 
