@@ -103,6 +103,7 @@ public class ChatApp implements Serializable, ChatClient{
 
 	private boolean appendMessage(String sender, String message) {
 		chatField.setText(chatField.getText()+ "\n ( " + sender + " ) " + message);
+		inputTextField.setText("akwdalwkdl");
 		return true;
 	}
 
@@ -116,6 +117,8 @@ public class ChatApp implements Serializable, ChatClient{
 	@Override
 	public boolean registerBroadcastMessage(ChatClient sender, String message) throws RemoteException {
 		System.out.println("Registrando mensagem");
+		System.out.println(sender.getUsername());
+		System.out.println(message);
 		appendMessage(sender.getUsername(), message);
 		return true;
 	}
