@@ -24,24 +24,103 @@ import java.rmi.registry.Registry;
 
 import javax.swing.Action;
 
-public class ChatClientImpl implements Serializable, ChatClient{
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -984108906583278753L;
+public class ChatApp implements Serializable, ChatClient{
+	private static final long serialVersionUID = -5403597055866663378L;
+	private String username;
+	
 	private JFrame frame;
 	private JTextField inputTextField;
 	private JTextPane chatField;
-	private final Action action = new SwingAction();
 	private JButton submitBttn;
-	private String username;
+	
+	private ChatServer server;
+	private final Action action = new SwingAction(this);
 
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
+	public ChatApp(String username, ChatServer server) throws RemoteException {
+		initialize();
+		this.username = username;
+		this.server = server;
+		server.registerClient(this);
+		this.frame.setVisible(true);
+	}
+	
+	private void initialize() {
 		
+		frame = new JFrame();
+		frame.setResizable(false);
+		frame.setBounds(100, 100, 325, 360);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		JPanel panel = new JPanel();
+		frame.getContentPane().add(panel, BorderLayout.NORTH);
+		panel.setLayout(new GridLayout(1, 1, 0, 0));
+		
+		JLabel lblNewLabel = new JLabel("Bem vindo ao aplicativo de chat\r\n");
+		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel.setFont(new Font("Dialog", Font.PLAIN, 18));
+		panel.add(lblNewLabel);
+		
+		JPanel panel_1 = new JPanel();
+		frame.getContentPane().add(panel_1, BorderLayout.SOUTH);
+		panel_1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
+		
+		inputTextField = new JTextField();
+		inputTextField.setToolTipText("Digite as mensagens aqui!");
+		inputTextField.setColumns(20);
+		inputTextField.setDropMode(DropMode.INSERT);
+		panel_1.add(inputTextField);
+		
+		submitBttn = new JButton("Enviar");
+		submitBttn.setAction(action);
+		panel_1.add(submitBttn);
+		
+		JScrollPane scrollPane = new JScrollPane();
+		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
+		
+		chatField = new JTextPane();
+		chatField.setEditable(false);
+		scrollPane.setViewportView(chatField);
+	}
+	
+	private class SwingAction extends AbstractAction {
+		private static final long serialVersionUID = 5307367378393118447L;
+		private ChatClient c;
+		
+		public SwingAction(ChatClient chatClient) {
+			this.c = chatClient;
+			putValue(NAME, "Enviar");
+			putValue(SHORT_DESCRIPTION, "Enviar String para servidor");
+		}
+		
+		public void actionPerformed(ActionEvent e) {
+			try {
+				server.sendBroadcastMessage(c, inputTextField.getText());
+			} catch (RemoteException e1) {
+				System.out.println("Erro ao enviar mensagem");
+			}
+		}
+	}
+
+	private boolean appendMessage(String sender, String message) {
+		chatField.setText(chatField.getText()+ "\n ( " + sender + " ) " + message);
+		return true;
+	}
+
+	
+	@Override
+	public String getUsername() throws RemoteException {
+		return username;
+	}
+
+	
+	@Override
+	public boolean registerBroadcastMessage(ChatClient sender, String message) throws RemoteException {
+		System.out.println("Registrando mensagem");
+		appendMessage(sender.getUsername(), message);
+		return true;
+	}
+	
+	public static void main(String args[]) {
 		Registry reg = null;
 		try {
 			reg = LocateRegistry.createRegistry(1099);
@@ -55,117 +134,16 @@ public class ChatClientImpl implements Serializable, ChatClient{
 		}
 		
 		ChatServer server = null;
-		ChatClientImpl client = null;
 		try { 
 			server = (ChatServer) reg.lookup("chatserver");
-			client = new ChatClientImpl(JOptionPane.showInputDialog("por favor, escolha um apelido"));
-			server.registerClient(client);
+			
+			String apelido = JOptionPane.showInputDialog("Por favor, escolha um apelido").trim();
+			if (apelido == null || apelido.equals("")) System.exit(1);
+			
+			new ChatApp(apelido, server);
 		} catch (Exception rex) {
 			rex.printStackTrace();
 			System.exit(1);
 		}
-		
-		client.show();
-	}
-
-	/**
-	 * Create the application.
-	 * @param string 
-	 */
-	public ChatClientImpl(String string) {
-		this.username = string;
-		initialize();
-	}
-
-	public void show() {
-			this.frame.setVisible(true);
-	}
-	
-	/**
-	 * Initialize the contents of the frame.
-	 */
-	private void initialize() {
-		
-		frame = new JFrame();
-		frame.setResizable(false);
-		frame.setBounds(100, 100, 325, 360);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		JPanel panel = new JPanel();
-		frame.getContentPane().add(panel, BorderLayout.NORTH);
-		panel.setLayout(new GridLayout(4, 1, 0, 0));
-		
-		JLabel lblNewLabel = new JLabel("Bem vindo ao aplicativo de chat\r\n");
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		panel.add(lblNewLabel);
-		
-		JLabel lblNewLabel_2 = new JLabel("Aluno: Renato Caminha Jua\u00E7aba Neto\r\n");
-		lblNewLabel_2.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblNewLabel_2);
-		
-		JLabel lblNewLabel_3 = new JLabel("\r\nAs mensagens est\u00E3o no formato  \"(usu\u00E1rio) bl\u00E1 bl\u00E1 bl\u00E1\"\r\n");
-		lblNewLabel_3.setFont(new Font("Tahoma", Font.PLAIN, 12));
-		lblNewLabel_3.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblNewLabel_3);
-		
-		JLabel lblNewLabel_1 = new JLabel("Para se comunicar utilize a caixa de texto no canto inferior");
-		lblNewLabel_1.setFont(new Font("Tahoma", Font.PLAIN, 11));
-		lblNewLabel_1.setHorizontalAlignment(SwingConstants.CENTER);
-		panel.add(lblNewLabel_1);
-		
-		JPanel panel_1 = new JPanel();
-		frame.getContentPane().add(panel_1, BorderLayout.SOUTH);
-		panel_1.setLayout(new FlowLayout(FlowLayout.CENTER, 5, 5));
-		
-		inputTextField = new JTextField();
-		inputTextField.setColumns(20);
-		inputTextField.setDropMode(DropMode.INSERT);
-		panel_1.add(inputTextField);
-		
-		submitBttn = new JButton("Enviar");
-		submitBttn.setAction(action);
-		panel_1.add(submitBttn);
-		
-		JScrollPane scrollPane = new JScrollPane();
-		frame.getContentPane().add(scrollPane, BorderLayout.CENTER);
-		
-		chatField = new JTextPane();
-		scrollPane.setViewportView(chatField);
-	}
-	
-	private class SwingAction extends AbstractAction {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 5307367378393118447L;
-
-		public SwingAction() {
-			putValue(NAME, "Enviar");
-			putValue(SHORT_DESCRIPTION, "Enviar String para servidor");
-		}
-		
-		public void actionPerformed(ActionEvent e) {
-			System.out.println("click do botão :D");
-		}
-	}
-
-	@Override
-	public String getUsername() throws RemoteException {
-		return username;
-	}
-
-	@Override
-	public boolean registerBroadcastMessage(ChatClient sender, String message) throws RemoteException {
-		String unameSender = null;
-		try {
-			unameSender = sender.getUsername().trim();
-		} catch (RemoteException rex) {
-			unameSender = "Failed to retrieve username";
-		}
-	
-		chatField.setText(chatField.getText()+ "\n ( " + unameSender + " ) " + message);
-		return true;
 	}
 }
