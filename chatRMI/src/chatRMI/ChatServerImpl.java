@@ -41,28 +41,27 @@ public class ChatServerImpl extends UnicastRemoteObject implements ChatServer {
 
 	@Override
 	public boolean registerClient(ChatClient c) {
-		System.out.println("Novo cliente registrado");
 		clientList.add(c);
 		return true;
 	}
 
 	@Override
 	public boolean unregisterClient(ChatClient c) {
-		System.out.println("Cliente removido do chat");
 		clientList.remove(c);
 		return true;
 	}
 
 	@Override
 	public boolean sendBroadcastMessage(ChatClient sender, String message) {
-		try {
-			for (ChatClient c : clientList) {
+		boolean ok = true;
+		for (ChatClient c : clientList) {
+			try {
 				c.registerBroadcastMessage(sender, message);
+			} catch (RemoteException e) {
+				unregisterClient(c);
+				ok = false;
 			}
-			return true;
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			return false;
 		}
+		return ok;
 	}
 }

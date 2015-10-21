@@ -21,10 +21,11 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 import javax.swing.Action;
 
-public class ChatApp implements Serializable, ChatClient{
+public class ChatApp extends UnicastRemoteObject implements Serializable, ChatClient{
 	private static final long serialVersionUID = -5403597055866663378L;
 	private String username;
 	
@@ -37,10 +38,10 @@ public class ChatApp implements Serializable, ChatClient{
 	private final Action action = new SwingAction(this);
 
 	public ChatApp(String username, ChatServer server) throws RemoteException {
-		initialize();
 		this.username = username;
 		this.server = server;
 		server.registerClient(this);
+		initialize();
 		this.frame.setVisible(true);
 	}
 	
@@ -53,12 +54,17 @@ public class ChatApp implements Serializable, ChatClient{
 		
 		JPanel panel = new JPanel();
 		frame.getContentPane().add(panel, BorderLayout.NORTH);
-		panel.setLayout(new GridLayout(1, 1, 0, 0));
+		panel.setLayout(new GridLayout(2, 1, 0, 0));
 		
 		JLabel lblNewLabel = new JLabel("Bem vindo ao aplicativo de chat\r\n");
 		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		lblNewLabel.setFont(new Font("Dialog", Font.PLAIN, 18));
 		panel.add(lblNewLabel);
+		
+		JLabel lblNewLabel2 = new JLabel("Apelido: "+this.username+"\r\n");
+		lblNewLabel2.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNewLabel2.setFont(new Font("Dialog", Font.PLAIN, 18));
+		panel.add(lblNewLabel2);
 		
 		JPanel panel_1 = new JPanel();
 		frame.getContentPane().add(panel_1, BorderLayout.SOUTH);
@@ -92,18 +98,22 @@ public class ChatApp implements Serializable, ChatClient{
 			putValue(SHORT_DESCRIPTION, "Enviar String para servidor");
 		}
 		
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				server.sendBroadcastMessage(c, inputTextField.getText());
+				server.sendBroadcastMessage(c, inputTextField.getText().trim());
 			} catch (RemoteException e1) {
-				System.out.println("Erro ao enviar mensagem");
+				JOptionPane.showMessageDialog(frame, "Erro ao enviar mensagem");
 			}
 		}
 	}
 
 	private boolean appendMessage(String sender, String message) {
-		chatField.setText(chatField.getText()+ "\n ( " + sender + " ) " + message);
-		inputTextField.setText("akwdalwkdl");
+		String newText = chatField.getText();
+		newText += " ( " + sender + " ) ";
+		newText += message;
+		newText += "\n";
+		chatField.setText(newText);
 		return true;
 	}
 
@@ -116,9 +126,6 @@ public class ChatApp implements Serializable, ChatClient{
 	
 	@Override
 	public boolean registerBroadcastMessage(ChatClient sender, String message) throws RemoteException {
-		System.out.println("Registrando mensagem");
-		System.out.println(sender.getUsername());
-		System.out.println(message);
 		appendMessage(sender.getUsername(), message);
 		return true;
 	}
